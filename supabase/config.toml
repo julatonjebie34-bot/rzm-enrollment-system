@@ -1,0 +1,5 @@
+project_id = "rzm-enrollment-system"
+[functions.public-enrollment]
+verify_jwt = false
+[functions.manage-users]
+verify_jwt = false

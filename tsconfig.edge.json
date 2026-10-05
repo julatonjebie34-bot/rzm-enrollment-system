@@ -1,0 +1,1 @@
+{"compilerOptions":{"target":"ES2022","lib":["ES2022","DOM","DOM.Iterable"],"module":"ESNext","moduleResolution":"Bundler","strict":true,"skipLibCheck":true,"noEmit":true,"baseUrl":".","paths":{"https://esm.sh/@supabase/supabase-js@2":["node_modules/@supabase/supabase-js"]}},"include":["supabase/functions/**/*.ts"]}
