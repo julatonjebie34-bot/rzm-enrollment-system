@@ -16,3 +16,46 @@ button,.button{font-weight:600;min-height:36px;transition:background .15s,border
 @media(max-width:760px){.shell aside{width:254px;z-index:40}.shell main{width:100%;margin-left:0}.sidebar-scrim{display:block;position:fixed;inset:0;z-index:35;background:#0b1e3880;border:0;border-radius:0;backdrop-filter:blur(2px)}.shell header{padding:19px 16px;align-items:flex-start}.shell header h1{font-size:23px}.shell header .eyebrow{font-size:8px}.page-subtitle{font-size:10px;line-height:1.7;max-width:230px}.shell .content{padding:16px}.shell .header-right{gap:0}.welcome{padding:26px;min-height:250px}.welcome h2{font-size:27px}.welcome .eyebrow{line-height:1.7;display:block;max-width:220px}.stat{padding:19px 17px}.stat span{font-size:10px}.stat strong{font-size:29px}.panel{padding:17px}.stats{gap:11px}.modal{padding:22px}.public-page{padding:22px 15px;background:linear-gradient(180deg,#112b46 0px,#1c3c5b 330px,#eff3f8 330px)}.public-brand{font-size:11px;line-height:1.6;gap:10px}.public-brand .school-brand-logo{width:40px;height:40px}.enrollment-intro{margin:26px auto 25px}.enrollment-intro h1{font-size:27px}.enrollment-intro p{font-size:11px}.enrollment-pills{gap:17px}.enrollment-pills span{font-size:9px}.public-card{padding:24px 19px;border-radius:14px}.enrollment-card-heading h1{font-size:18px}.enrollment-card-heading .eyebrow{font-size:8px;line-height:1.7}.public-card .steps{padding-bottom:18px;margin-top:18px;margin-bottom:22px;gap:4px}.public-card .steps b{width:25px;height:25px}.public-card .steps small{display:none}.form-section-heading{gap:10px;margin:19px 0 25px}.form-section-heading h2{font-size:17px}.form-section-heading p{font-size:10px}.public-card .form-grid{grid-template-columns:1fr}.public-card label{margin-bottom:20px}.public-card input,.public-card select{font-size:16px;min-height:48px}.public-card input::placeholder{font-size:12px}.enrollment-actions{flex-wrap:nowrap!important}.enrollment-actions button{padding:11px 13px}.enrollment-actions>span{font-size:9px}.confirmation>strong{font-size:13px;letter-spacing:0}.public-card.confirmation{padding:30px 20px}.school-auth{padding-top:30px}.staff-access-note{font-size:9px}}
 @media print{.shell main{margin:0;width:100%}.shell aside,.sidebar-scrim,.enrollment-intro,.public-brand,.steps,.enrollment-progress,.public-footer,.enrollment-actions{display:none!important}.public-page{background:white;padding:0}.public-card{border:0;box-shadow:none;padding:0}.public-card.confirmation{margin:0;max-width:none}.public-card.confirmation strong{color:black}.table-wrap{border:0}.shell .content{padding:0}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* Welcome and three-second transition for public enrollment links. */
+.enrollment-entry{position:relative;isolation:isolate;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px 30px;background:#142f4c url('/brand/school-campus.png') center/cover no-repeat;color:#fff;text-align:center}
+.enrollment-entry-overlay{position:absolute;inset:0;z-index:-1;background:linear-gradient(135deg,#0d223cdd,#143d5bab 56%,#11263fde)}
+.enrollment-entry-card{width:min(100%,610px);padding:42px 48px 46px;border:1px solid #ffffff4d;border-radius:24px;background:#112b46d9;box-shadow:0 24px 80px #081b30a8;backdrop-filter:blur(12px)}
+.enrollment-entry-logo{display:block;width:100px;height:100px;object-fit:cover;margin:0 auto 24px;border:4px solid #fff;border-radius:50%;box-shadow:0 8px 24px #0005}
+.enrollment-entry-eyebrow{display:block;color:#f5d8b9;font-size:11px;font-weight:700;letter-spacing:2px;line-height:1.6}
+.enrollment-entry h1{margin:15px 0 14px;color:#fff;font-size:clamp(30px,5vw,48px);line-height:1.15;letter-spacing:-1.2px}
+.enrollment-entry-card>p{max-width:460px;margin:0 auto;color:#e0e9f3;font-size:15px;line-height:1.75}
+.enrollment-entry-card .enrollment-entry-title{margin-top:18px;color:#f5d8b9;font-size:13px;font-weight:700}
+.enrollment-entry .alert{margin:24px 0 0;text-align:left}
+.enrollment-entry-start{display:inline-flex;align-items:center;justify-content:center;gap:11px;min-height:54px;margin-top:30px;padding:13px 27px;border-radius:10px;font-size:15px}
+.enrollment-entry-start:disabled{opacity:.65;cursor:wait}
+.enrollment-entry-progress{height:8px;margin:30px auto 0;overflow:hidden;border-radius:99px;background:#ffffff36}
+.enrollment-entry-progress span{display:block;width:100%;height:100%;background:#f2b775;transform-origin:left;animation:enrollment-entry-load 3s linear forwards}
+.enrollment-entry-card .enrollment-entry-status{margin-top:13px;color:#d7e4ef;font-size:12px}
+.enrollment-entry-footer{margin-top:30px;color:#e0e8f1;font-size:12px;text-shadow:0 2px 8px #0008}
+@keyframes enrollment-entry-load{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(max-width:600px){.enrollment-entry{padding:30px 16px}.enrollment-entry-card{padding:34px 23px 38px;border-radius:18px}.enrollment-entry-logo{width:82px;height:82px}.enrollment-entry-eyebrow{font-size:9px;letter-spacing:1.4px}.enrollment-entry-card>p{font-size:13px}.enrollment-entry-footer{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.enrollment-entry-progress span{animation:none;transform:scaleX(1)}}
+/* Standalone enrollment screens must not inherit the staff sidebar offset. */
+html,body,#root{min-height:100%;width:100%;margin:0}
+.enrollment-entry{box-sizing:border-box;margin:0!important;width:100%!important;max-width:none;min-height:100vh;min-height:100dvh;overflow:hidden;padding:clamp(24px,5vh,54px) 24px;position:relative;isolation:isolate}
+.enrollment-entry-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.enrollment-entry-card,.enrollment-entry-footer{position:relative;z-index:1}
+.enrollment-entry-card{animation:entry-card-arrive .55s cubic-bezier(.2,.8,.2,1) both}
+.enrollment-entry.is-leaving .enrollment-entry-card{animation:entry-card-leave .32s ease-in both}
+.enrollment-entry.is-leaving .enrollment-entry-footer{opacity:0;transition:opacity .25s}
+.enrollment-entry-progress span{animation:enrollment-entry-load 2.2s cubic-bezier(.25,.65,.35,1) forwards;will-change:transform}
+.enrollment-entry.is-leaving .enrollment-entry-progress span{animation:none;transform:scaleX(1)}
+.enrollment-form-enter{animation:enrollment-form-arrive .55s cubic-bezier(.2,.8,.2,1) both}
+.enrollment-step-enter{animation:enrollment-step-arrive .3s ease-out both}
+#enrollment-step-heading:focus{outline:none}
+.remove-link-button{color:#b63d34!important;border-color:#dfb3ae!important;background:var(--surface)!important}
+.remove-link-button:hover{background:var(--soft)!important}
+.removed-links-toggle{display:flex;flex-direction:row;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:18px}
+.removed-links-toggle input{width:17px;height:17px;min-height:17px;margin:0}
+@keyframes entry-card-arrive{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes entry-card-leave{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-16px) scale(.98)}}
+@keyframes enrollment-form-arrive{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes enrollment-step-arrive{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+@media(max-width:600px){.enrollment-entry{padding:24px 16px}.enrollment-entry-card{max-width:100%}.enrollment-entry-footer{line-height:1.7}}
+@media(prefers-reduced-motion:reduce){.enrollment-entry-card,.enrollment-entry.is-leaving .enrollment-entry-card,.enrollment-form-enter,.enrollment-step-enter,.enrollment-entry-progress span{animation:none!important;transform:none!important;opacity:1!important}.enrollment-entry-progress span{transform:scaleX(1)!important}}
