@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+export const authStorageKey = 'sb-yiazkffyceujhtsxvgds-auth-token';
 export const configured=!!import.meta.env.VITE_SUPABASE_URL && !!import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 export const db=configured?createClient(import.meta.env.VITE_SUPABASE_URL,import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY):null;
 export type Row=Record<string,any>;

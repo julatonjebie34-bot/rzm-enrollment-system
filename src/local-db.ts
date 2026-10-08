@@ -1,0 +1,11 @@
+/** Records and queued mutations share one strict read/write transaction. */
+export const localName='rzm-offline-'+(import.meta.env?.VITE_SUPABASE_URL||'test');
+let opened:Promise<IDBDatabase>|undefined;
+export function openLocal(){return opened??=new Promise<IDBDatabase>((resolve,reject)=>{const r=indexedDB.open(localName,1);r.onupgradeneeded=()=>{for(const name of ['records','queue','meta','auth','logs'])r.result.createObjectStore(name,{keyPath:'key'});};r.onerror=()=>{opened=undefined;reject(r.error)};r.onsuccess=()=>{r.result.onversionchange=()=>{r.result.close();opened=undefined};resolve(r.result)}})}
+export function request<T=any>(r:IDBRequest<T>){return new Promise<T>((resolve,reject)=>{r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
+export async function transaction<T>(stores:string[],mode:IDBTransactionMode,fn:(t:IDBTransaction)=>Promise<T>):Promise<T>{const d=await openLocal();const t=d.transaction(stores,mode,{durability:mode==='readwrite'?'strict':'default'});const done=new Promise<void>((resolve,reject)=>{t.oncomplete=()=>resolve();t.onabort=()=>reject(t.error||Error('Local transaction aborted'));t.onerror=()=>reject(t.error)});try{const result=await fn(t);await done;return result}catch(e){try{t.abort()}catch{}await done.catch(()=>{});throw e}}
+export const all=<T=any>(store:string)=>transaction([store],'readonly',t=>request<T[]>(t.objectStore(store).getAll()));
+export const get=<T=any>(store:string,key:string)=>transaction([store],'readonly',t=>request<T|undefined>(t.objectStore(store).get(key)));
+export const put=(store:string,value:any)=>transaction([store],'readwrite',t=>request(t.objectStore(store).put(value)));
+export const authStorage={getItem:async(key:string)=>(await get('auth',key))?.value??localStorage.getItem(key),setItem:async(key:string,value:string)=>{await put('auth',{key,value});localStorage.removeItem(key)},removeItem:async(key:string)=>{await transaction(['auth'],'readwrite',t=>request(t.objectStore('auth').delete(key)));localStorage.removeItem(key)}};
+export function uuid(){const b=crypto.getRandomValues(new Uint8Array(16));b[6]=(b[6]&15)|64;b[8]=(b[8]&63)|128;return [...b].map((v,i)=>([4,6,8,10].includes(i)?'-':'')+v.toString(16).padStart(2,'0')).join('')}
