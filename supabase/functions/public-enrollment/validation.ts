@@ -1,0 +1,14 @@
+export const required=['first_name','last_name','birth_date','sex','address','contact','guardian_name','guardian_contact','grade_level_id','enrollment_type'];
+export class PublicError extends Error{constructor(public code:string){super(code)}}
+export function cleanDetails(input:any,link:{allowed_grade_ids:string[];extra_questions?:string[]}){
+ if(!input||typeof input!=='object')throw new PublicError('INVALID_DETAILS');
+ const data:Record<string,any>={};for(const k of required){if(typeof input[k]!=='string'||!input[k].trim()||input[k].length>1000)throw new PublicError('INVALID_DETAILS');data[k]=input[k].trim();}
+ if(!link.allowed_grade_ids.includes(data.grade_level_id)||!['Male','Female'].includes(data.sex)||!['New','Returning','Transferee'].includes(data.enrollment_type))throw new PublicError('INVALID_DETAILS');
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(data.birth_date)||!Number.isFinite(Date.parse(data.birth_date))||Date.parse(data.birth_date)>Date.now()||new Date(data.birth_date).toISOString().slice(0,10)!==data.birth_date)throw new PublicError('INVALID_DETAILS');
+ const has=input.has_lrn??!!input.lrn;if(typeof has!=='boolean')throw new PublicError('INVALID_LRN');
+ if(has&&(typeof input.lrn!=='string'||!/^\d{12}$/.test(input.lrn)))throw new PublicError('INVALID_LRN');
+ data.lrn=has?input.lrn:null;data.has_lrn=has;data.previous_school=String(input.previous_school||'').slice(0,300);data.extra_answers=Object.fromEntries((link.extra_questions||[]).map(q=>[q,String(input.extra_answers?.[q]||'').slice(0,1000)]));return data;
+}
+export async function boundedBody(req:Request,max:number){const reader=req.body?.getReader();if(!reader)throw new PublicError('INVALID_DETAILS');let size=0;const chunks:ArrayBuffer[]=[];while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>max){await reader.cancel();throw new PublicError('REQUEST_TOO_LARGE')}chunks.push(new Uint8Array(value).buffer)}return new Blob(chunks)}
+export function fileType(bytes:Uint8Array,field:string){const png=bytes[0]===137&&bytes[1]===80&&bytes[2]===78&&bytes[3]===71;const jpg=bytes[0]===255&&bytes[1]===216&&bytes[2]===255;const pdf=new TextDecoder().decode(bytes.slice(0,5))==='%PDF-';if(png)return {ext:'png',mime:'image/png'};if(jpg)return {ext:'jpg',mime:'image/jpeg'};if(field==='certificate'&&pdf)return {ext:'pdf',mime:'application/pdf'};throw new PublicError('INVALID_DOCUMENT')}
+export function publicErrorCode(error:unknown){const message=error instanceof Error?error.message:String((error as any)?.message||'');return ['LINK_UNAVAILABLE','INVALID_LRN','INVALID_DETAILS','ACTIVE_LRN_APPLICATION','EXISTING_LRN_CONTACT_SCHOOL','SUBMISSION_CHANGED','MISSING_DOCUMENTS','INVALID_DOCUMENT','DOCUMENT_TOO_LARGE','REQUEST_TOO_LARGE','CAPTCHA_REQUIRED','RATE_LIMITED','INVALID_SUBMISSION','SERVICE_UNAVAILABLE'].find(code=>message.includes(code))||'SERVICE_UNAVAILABLE'}

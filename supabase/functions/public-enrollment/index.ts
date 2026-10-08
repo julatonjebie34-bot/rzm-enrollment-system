@@ -1,51 +1,34 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
+import {boundedBody,cleanDetails,fileType,PublicError,publicErrorCode} from './validation.ts';
 const client=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
-const required=['first_name','last_name','birth_date','sex','address','contact','guardian_name','guardian_contact','grade_level_id','enrollment_type'];
 Deno.serve(async(req)=>{
- const origin=req.headers.get('origin')||'';
- const allowed=(Deno.env.get('ALLOWED_ORIGINS')||'').split(',');
- const headers={'Access-Control-Allow-Origin':allowed.includes(origin)?origin:'null','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Content-Type':'application/json','Vary':'Origin'};
+ const origin=req.headers.get('origin')||'';const allowed=(Deno.env.get('ALLOWED_ORIGINS')||'').split(',').map(v=>v.trim()).filter(Boolean);
+ const headers={'Access-Control-Allow-Origin':allowed.includes(origin)?origin:'null','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'GET, POST, OPTIONS','Content-Type':'application/json','Cache-Control':'no-store','Vary':'Origin'};
  const response=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers});
- if(!allowed.includes(origin))return response({error:'Origin not allowed'},403);
- if(req.method==='OPTIONS')return new Response('ok',{headers});
- if(!['GET','POST'].includes(req.method))return response({error:'Method not allowed'},405);
- let paths:string[]=[];let applicationId:string|undefined;
+ if(!allowed.includes(origin))return response({error:'Origin not allowed',errorCode:'ORIGIN_NOT_ALLOWED'},403);
+ if(req.method==='OPTIONS')return new Response('ok',{headers});if(!['GET','POST'].includes(req.method))return response({error:'Method not allowed'},405);
+ const paths:string[]=[];let rpcAttempted=false;
  try{
-  const token=new URL(req.url).searchParams.get('token');
-  if(!token||!/^[0-9a-f-]{36}$/i.test(token))throw Error('Invalid enrollment link');
-  const {data:link,error}=await client.from('enrollment_links').select('*').eq('token',token).single();
-  if(error||!link||!link.published||link.archived||Date.now()<Date.parse(link.opens_at)||Date.now()>Date.parse(link.closes_at))return response({error:'This enrollment link is closed or unavailable'},404);
+  const url=new URL(req.url);const token=url.searchParams.get('token');if(!token||!/^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.test(token))throw new PublicError('LINK_UNAVAILABLE');
+  const {data:link,error}=await client.from('enrollment_links').select('*').eq('token',token).single();if(error&&error.code!=='PGRST116')throw new PublicError('SERVICE_UNAVAILABLE');if(!link||!link.published||link.archived||Date.now()<Date.parse(link.opens_at)||Date.now()>Date.parse(link.closes_at))throw new PublicError('LINK_UNAVAILABLE');
   if(req.method==='GET'){
-   const [grades,year,school]=await Promise.all([client.from('grade_levels').select('id,name').in('id',link.allowed_grade_ids),client.from('school_years').select('name').eq('id',link.school_year_id).single(),client.from('school_settings').select('school_name').eq('id',1).single()]);
+   const [grades,year,school]=await Promise.all([client.from('grade_levels').select('id,name').in('id',link.allowed_grade_ids),client.from('school_years').select('name').eq('id',link.school_year_id).single(),client.from('school_settings').select('school_name').eq('id',1).single()]);if(grades.error||year.error||school.error)throw new PublicError('SERVICE_UNAVAILABLE');
    return response({title:link.title,instructions:link.instructions,extra_questions:link.extra_questions,grades:grades.data,year:year.data?.name,school:school.data?.school_name,turnstileSiteKey:Deno.env.get('TURNSTILE_SITE_KEY')});
   }
-  if(Number(req.headers.get('content-length')||0)>11*1024*1024)return response({error:'Request too large'},413);
-  const reader=req.body?.getReader();if(!reader)throw Error('Missing request body');let length=0;const chunks:ArrayBuffer[]=[];while(true){const {done,value}=await reader.read();if(done)break;length+=value.length;if(length>11*1024*1024){await reader.cancel();return response({error:'Request too large'},413);}chunks.push(new Uint8Array(value).buffer);}const form=await new Response(new Blob(chunks),{headers:{'Content-Type':req.headers.get('content-type')||''}}).formData(); const data=JSON.parse(String(form.get('data')));
-  const secret=Deno.env.get('TURNSTILE_SECRET_KEY');if(!secret)throw Error('Enrollment protection is not configured');
-  const verify=await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',body:new URLSearchParams({secret,response:String(form.get('captcha')||'')})});
-  const verified=await verify.json();if(!verified.success||verified.action!=='enrollment')return response({error:'Please complete the verification again'},400);
-  for(const field of required){if(typeof data[field]!=='string'||!data[field].trim()||data[field].length>1000)throw Error('Invalid or missing '+field);data[field]=data[field].trim();}
-  if(!link.allowed_grade_ids.includes(data.grade_level_id))throw Error('Grade level is not allowed');
-  if(!['Male','Female'].includes(data.sex)||!['New','Returning','Transferee'].includes(data.enrollment_type))throw Error('Invalid enrollment details');
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(data.birth_date)||!Number.isFinite(Date.parse(data.birth_date))||Date.parse(data.birth_date)>Date.now()||new Date(data.birth_date).toISOString().slice(0,10)!==data.birth_date)throw Error('Invalid birth date');
-  if(data.lrn&&!/^\d{12}$/.test(data.lrn))throw Error('LRN must have 12 digits');
-  if(data.enrollment_type==='Returning'&&!data.lrn)throw Error('Returning students must enter an LRN');
-  const docs=[];const folder=crypto.randomUUID();
-  for(const [field,kind] of [['photo','Photo'],['certificate','Birth Certificate']]){
-   const file=form.get(field);if(!(file instanceof File)||!file.size||file.size>5*1024*1024)throw Error('Both documents are required, up to 5 MB each');
-   const bytes=new Uint8Array(await file.arrayBuffer());const png=bytes[0]===137&&bytes[1]===80&&bytes[2]===78&&bytes[3]===71;const jpg=bytes[0]===255&&bytes[1]===216&&bytes[2]===255;const pdf=new TextDecoder().decode(bytes.slice(0,5))==='%PDF-';
-   if(!(png||jpg||(field==='certificate'&&pdf)))throw Error('Use a JPG/PNG photo and a JPG/PNG/PDF birth certificate');
-   const ext=png?'png':jpg?'jpg':'pdf';const path=`${folder}/${field}.${ext}`;
-   const {error}=await client.storage.from('student-documents').upload(path,bytes,{contentType:png?'image/png':jpg?'image/jpeg':'application/pdf'});if(error)throw error;paths.push(path);docs.push({kind,path});
-  }
-  const clean=Object.fromEntries(required.map(k=>[k,data[k]]));
-  const {data:app,error:save}=await client.from('applications').insert({...clean,lrn:data.lrn||null,previous_school:String(data.previous_school||'').slice(0,300),extra_answers:Object.fromEntries((link.extra_questions||[]).map((q:string)=>[q,String(data.extra_answers?.[q]||'').slice(0,1000)])),link_id:link.id}).select('id,reference').single();
-  if(save)throw Error(save.code==='23505'?'An application with this LRN already exists':'Unable to submit application');applicationId=app.id;
-  const {error:docError}=await client.from('documents').insert(docs.map(d=>({...d,application_id:app.id})));if(docError)throw docError;
-  return response({reference:app.reference},201);
+  // Hash a gateway address rather than storing raw IPs; also enforce a per-link global cap.
+  const ip=(req.headers.get('x-forwarded-for')||'unknown').split(',').at(-1)!.trim();const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ip+'|'+Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')));const hash=[...new Uint8Array(bytes)].map(v=>v.toString(16).padStart(2,'0')).join('');
+  const checking=url.searchParams.get('action')==='check-lrn';
+  for(const [bucket,maximum] of [[`link:${token}:${checking?'check':'submit'}`,checking?80:30],[`ip:${hash}:${checking?'check':'submit'}`,checking?12:5]] as const){const r=await client.rpc('consume_enrollment_limit',{bucket_key:bucket,maximum,window_seconds:60});if(r.error)throw new PublicError('SERVICE_UNAVAILABLE');if(!r.data)throw new PublicError('RATE_LIMITED');}
+  if(checking){const body=JSON.parse(await (await boundedBody(req,1024)).text());if(typeof body.lrn!=='string'||!/^\d{12}$/.test(body.lrn)||!['New','Returning','Transferee'].includes(body.enrollment_type))throw new PublicError('INVALID_LRN');const r=await client.rpc('check_public_lrn',{link_token:token,official_lrn:body.lrn,learner_type:body.enrollment_type});if(r.error)throw r.error;return response(r.data);}
+  const blob=await boundedBody(req,11*1024*1024);const form=await new Response(blob,{headers:{'Content-Type':req.headers.get('content-type')||''}}).formData();const raw=JSON.parse(String(form.get('data')));const details=cleanDetails(raw,link);const submission=raw.submission_id;if(typeof submission!=='string'||!/^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.test(submission))throw new PublicError('INVALID_SUBMISSION');
+  const secret=Deno.env.get('TURNSTILE_SECRET_KEY');if(!secret)throw new PublicError('SERVICE_UNAVAILABLE');const verified=await (await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',body:new URLSearchParams({secret,response:String(form.get('captcha')||'')})})).json();if(!verified.success||verified.action!=='enrollment')throw new PublicError('CAPTCHA_REQUIRED');
+  const docs=[];const folder=crypto.randomUUID();for(const [field,kind] of [['photo','Photo'],['certificate','Birth Certificate']]){const file=form.get(field);if(!(file instanceof File)||!file.size)throw new PublicError('MISSING_DOCUMENTS');if(file.size>5*1024*1024)throw new PublicError('DOCUMENT_TOO_LARGE');const bytes=new Uint8Array(await file.arrayBuffer());const type=fileType(bytes,field);const path=`${folder}/${field}.${type.ext}`;const uploaded=await client.storage.from('student-documents').upload(path,bytes,{contentType:type.mime});if(uploaded.error)throw new PublicError('SERVICE_UNAVAILABLE');paths.push(path);docs.push({kind,path});}
+  // This RPC commits application + both document rows together; replay IDs are stable.
+  rpcAttempted=true;const result=await client.rpc('submit_public_application',{link_token:token,submission,details,uploaded_documents:docs});if(result.error)throw result.error;if(!result.data?.reference)throw new PublicError('SERVICE_UNAVAILABLE');
+  if(result.data.replayed&&paths.length)await client.storage.from('student-documents').remove(paths);return response({reference:result.data.reference,lrn_status:result.data.lrn_status},201);
  }catch(error){
-  if(applicationId)await client.from('applications').delete().eq('id',applicationId);
-  if(paths.length)await client.storage.from('student-documents').remove(paths);
-  return response({error:error instanceof Error?error.message:'Submission failed'},400);
+  // An interrupted RPC may have committed: never delete potentially referenced uploads.
+  if(paths.length&&!rpcAttempted)await client.storage.from('student-documents').remove(paths);
+  const code=publicErrorCode(error);return response({error:'Enrollment could not be completed. Please check the form or contact the school.',errorCode:code},code==='RATE_LIMITED'?429:code==='LINK_UNAVAILABLE'?404:code==='SERVICE_UNAVAILABLE'?503:400);
  }
 });
