@@ -26,7 +26,7 @@ const configs:Record<string,{table:string,fields:string[]}>={
 };
 const label=(s:string)=>s.replace(/_id$/,'').replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
 function App(){
- const [showRemovedLinks,setShowRemovedLinks]=useState(true);
+ const [showRemovedLinks,setShowRemovedLinks]=useState(false);
  const [session,setSession]=useState<any>(null),[ready,setReady]=useState(false),[data,setData]=useState(emptyData),[page,setPage]=useState('Dashboard'),[sub,setSub]=useState('Academic Records'),[search,setSearch]=useState(''),[error,setError]=useState(''),[notice,setNotice]=useState(''),[modal,setModal]=useState<{title:string,row:Row}|null>(null),[busy,setBusy]=useState(false),[detail,setDetail]=useState<Row|null>(null),[mobile,setMobile]=useState(false),[dark,setDark]=useState(localStorage.getItem('theme')==='dark');
  const token=new URLSearchParams(location.search).get('enroll');
  useEffect(()=>{document.documentElement.dataset.theme=dark?'dark':'light';localStorage.setItem('theme',dark?'dark':'light');},[dark]);
