@@ -1,0 +1,151 @@
+/* Keep public form controls independent of the management screen's input styles. */
+.public-page.enrollment-form-page {
+  padding: 20px 20px 24px;
+  background: linear-gradient(180deg, #142f4c 0, #1c3c5b 260px, #eff3f8 260px);
+}
+.public-page.enrollment-form-page .public-brand {
+  max-width: 840px;
+  font-size: 12px;
+  gap: 10px;
+}
+.public-page.enrollment-form-page .public-brand .school-brand-logo { width: 36px; height: 36px; }
+.public-page.enrollment-form-page .enrollment-intro { max-width: 840px; margin: 16px auto 20px; }
+.public-page.enrollment-form-page .enrollment-intro > .eyebrow { display: none; }
+.public-page.enrollment-form-page .enrollment-intro h1 { font-size: 24px; margin: 0 0 6px; letter-spacing: -.6px; }
+.public-page.enrollment-form-page .enrollment-intro p { font-size: 13px; margin: 0; }
+.public-page.enrollment-form-page .enrollment-pills { margin-top: 10px; gap: 16px; }
+.public-page.enrollment-form-page .enrollment-pills span { font-size: 11px; }
+.public-page.enrollment-form-page .public-card { max-width: 840px; padding: 24px 28px; border-radius: 16px; }
+.public-page.enrollment-form-page .enrollment-card-heading { gap: 12px; }
+.public-page.enrollment-form-page .enrollment-card-heading h1 { font-size: 20px; margin-top: 4px; overflow-wrap: anywhere; }
+.public-page.enrollment-form-page .form-step-count { width: 44px; height: 32px; }
+.public-page.enrollment-form-page .enrollment-progress { margin-top: 16px; }
+.public-page.enrollment-form-page .steps { margin: 14px 0 18px; padding-bottom: 16px; gap: 8px; }
+.public-page.enrollment-form-page .steps > div { flex: 1; min-width: 0; gap: 7px; }
+.public-page.enrollment-form-page .steps b { width: 26px; height: 26px; }
+.public-page.enrollment-form-page .steps small { font-size: 10px; line-height: 1.4; }
+.public-page.enrollment-form-page .form-section-heading { margin: 0 0 18px; gap: 10px; }
+.public-page.enrollment-form-page .section-number { width: 32px; height: 32px; }
+.public-page.enrollment-form-page .form-section-heading h2 { font-size: 18px; margin-bottom: 4px; }
+.public-page.enrollment-form-page .form-section-heading p { font-size: 12px; line-height: 1.5; }
+
+/* The entire choice label remains a comfortable click/tap target. */
+.public-page.enrollment-form-page .learner-type,
+.public-page.enrollment-form-page .lrn-choice {
+  padding: 10px 12px 12px;
+  margin: 0 0 14px;
+  border-color: #dde5ef;
+  border-radius: 10px;
+}
+.public-page.enrollment-form-page legend { max-width: 100%; padding: 0 4px; font-size: 13px; line-height: 1.5; }
+.public-page.enrollment-form-page .field-help { min-height: 28px; min-width: 28px; vertical-align: middle; }
+.public-page.enrollment-form-page .learner-options { gap: 10px; }
+.public-page.enrollment-form-page .learner-options label,
+.public-page.enrollment-form-page .returning-options label,
+.public-page.enrollment-form-page .lrn-choice label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 44px;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 500;
+  cursor: pointer;
+}
+.public-page.enrollment-form-page .learner-options label > span { display: block; }
+.public-page.enrollment-form-page .learner-options .chosen { background: #fff5f2; border-color: #c94236; color: #843027; }
+.public-page.enrollment-form-page .learner-options label:focus-within { outline: 2px solid #c94236; outline-offset: 2px; }
+.public-page.enrollment-form-page .returning-options { padding-top: 8px; gap: 6px; }
+.public-page.enrollment-form-page .returning-options label,
+.public-page.enrollment-form-page .lrn-choice label { border-radius: 8px; background: #f7f9fc; }
+.public-page.enrollment-form-page .learner-type > p { font-size: 12px; line-height: 1.5; color: #64748b; margin: 10px 0 0; }
+.public-page.enrollment-form-page .lrn-choice { gap: 8px; }
+.public-page.enrollment-form-page .lrn-choice label { min-width: 82px; }
+.public-page.enrollment-form-page input[type="radio"],
+.public-page.enrollment-form-page input[type="checkbox"] {
+  appearance: auto;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  max-width: 18px;
+  max-height: 18px;
+  flex: 0 0 18px;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  accent-color: #c94236;
+}
+.public-page.enrollment-form-page input[type="radio"]:focus-visible,
+.public-page.enrollment-form-page input[type="checkbox"]:focus-visible { outline: 2px solid #c94236; outline-offset: 3px; }
+.public-page.enrollment-form-page .lrn-notice { margin: 0 0 18px; padding: 10px 14px; border-radius: 8px; font-size: 12px; line-height: 1.5; }
+.public-page.enrollment-form-page .lrn-notice p { margin: 3px 0 0; line-height: 1.5; }
+
+.public-page.enrollment-form-page .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; }
+.public-page.enrollment-form-page .enrollment-field { min-width: 0; gap: 6px; }
+.public-page.enrollment-form-page .field-caption { min-height: 28px; gap: 6px; }
+.public-page.enrollment-form-page .field-caption label { display: block; margin: 0; font-size: 13px; line-height: 1.4; }
+.public-page.enrollment-form-page .field-caption label small { font-size: 11px; font-weight: 400; white-space: nowrap; }
+.public-page.enrollment-form-page .enrollment-field > input,
+.public-page.enrollment-form-page .enrollment-field > select {
+  min-height: 42px;
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  border-radius: 8px;
+}
+.public-page.enrollment-form-page .enrollment-field > input::placeholder { font-size: 13px; }
+.public-page.enrollment-form-page .enrollment-field > small { font-size: 12px; line-height: 1.5; }
+.public-page.enrollment-form-page .upload-card { flex-direction: column; min-width: 0; min-height: 164px; padding: 18px 14px; gap: 10px; margin: 0; }
+.public-page.enrollment-form-page .upload-card .field-caption { width: 100%; text-align: left; }
+.public-page.enrollment-form-page .upload-card .upload-icon { width: 32px; height: 32px; border-radius: 8px; }
+.public-page.enrollment-form-page .upload-card input[type="file"] { width: 100%; font-size: 12px; }
+.public-page.enrollment-form-page .upload-card small { font-size: 12px; }
+.public-page.enrollment-form-page .profile-grid { gap: 0 18px; padding: 4px 16px; }
+.public-page.enrollment-form-page .profile-grid small { font-size: 11px; }
+.public-page.enrollment-form-page .profile-grid p { font-size: 14px; }
+.public-page.enrollment-form-page .consent { padding: 12px; gap: 10px; font-size: 13px; line-height: 1.5; }
+.public-page.enrollment-form-page .consent input { margin-top: 2px; }
+.public-page.enrollment-form-page .enrollment-actions { margin: 22px 0 0; padding-top: 16px; gap: 10px; }
+.public-page.enrollment-form-page .enrollment-actions button { min-height: 44px; padding: 10px 18px; font-size: 13px; }
+.public-page.enrollment-form-page .enrollment-actions > span { font-size: 12px; white-space: nowrap; }
+.public-page.enrollment-form-page .draft-controls { margin-top: 20px; padding-top: 14px; }
+.public-page.enrollment-form-page .draft-controls label { flex-direction: row; align-items: flex-start; margin: 0; font-size: 12px; line-height: 1.5; font-weight: 500; }
+.public-page.enrollment-form-page .draft-controls small { margin: 6px 0 0 28px; font-size: 11px; line-height: 1.5; }
+.public-page.enrollment-form-page .public-footer { max-width: 760px; margin: 18px auto 0; font-size: 12px; }
+
+@media (max-width: 600px) {
+  .public-page.enrollment-form-page { padding: 16px 12px 24px; }
+  .public-page.enrollment-form-page .public-brand { font-size: 11px; line-height: 1.5; }
+  .public-page.enrollment-form-page .public-brand .school-brand-logo { width: 32px; height: 32px; }
+  .public-page.enrollment-form-page .enrollment-intro { margin: 14px auto 18px; }
+  .public-page.enrollment-form-page .enrollment-intro h1 { font-size: 21px; }
+  .public-page.enrollment-form-page .enrollment-intro p { font-size: 12px; }
+  .public-page.enrollment-form-page .public-card { padding: 20px 16px; border-radius: 12px; }
+  .public-page.enrollment-form-page .enrollment-card-heading h1 { font-size: 18px; }
+  .public-page.enrollment-form-page .steps { gap: 4px; margin-bottom: 16px; }
+  .public-page.enrollment-form-page .steps small { display: none; }
+  .public-page.enrollment-form-page .form-section-heading h2 { font-size: 17px; }
+  .public-page.enrollment-form-page .learner-options { grid-template-columns: 1fr; gap: 8px; }
+  .public-page.enrollment-form-page .returning-options { flex-direction: column; align-items: stretch; }
+  .public-page.enrollment-form-page .form-grid { grid-template-columns: 1fr; gap: 14px; }
+  .public-page.enrollment-form-page .enrollment-field > input,
+  .public-page.enrollment-form-page .enrollment-field > select { min-height: 44px; font-size: 16px; }
+  .public-page.enrollment-form-page .enrollment-actions button { padding: 10px 12px; }
+  .public-page.enrollment-form-page .enrollment-actions > span { font-size: 11px; }
+  .public-page.enrollment-form-page .public-footer { padding: 0 6px; }
+}
+@media (max-width: 420px) {
+  .public-page.enrollment-form-page .enrollment-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .public-page.enrollment-form-page .enrollment-actions > span { order: -1; grid-column: 1 / -1; text-align: center; }
+  .public-page.enrollment-form-page .enrollment-actions button { width: 100%; min-width: 0; height: 100%; }
+  .public-page.enrollment-form-page .enrollment-actions button svg { flex-shrink: 0; }
+}
+@media print {
+  .public-page.enrollment-form-page { padding: 0; background: white; }
+  .public-page.enrollment-form-page .public-card { max-width: none; padding: 0; border: 0; box-shadow: none; }
+}
