@@ -1,0 +1,15 @@
+import React,{useState} from 'react';
+import {Row} from './lib';
+import {EnrollmentDetails} from './EnrollmentDetails';
+import {restoreDetails,changeDetails,validateStep,cleanExtendedDetails} from '../supabase/functions/_shared/enrollment-details';
+import {translations} from './enrollment-i18n';
+
+export function RecordDetailsEditor({modal,data,busy,close,save}:{modal:{title:string;row:Row};data:Record<string,Row[]>;busy:boolean;close:()=>void;save:(row:Row)=>void}){
+ const [form,setForm]=useState<Row>(()=>restoreDetails(modal.row));const [error,setError]=useState('');const t=translations.en;
+ const change=(key:string,value:any)=>setForm(current=>changeDetails(current,key,value));
+ const info={grades:data.grade_levels,allGrades:data.grade_levels,extra_questions:[]};
+ function submit(event:React.FormEvent){event.preventDefault();for(let step=1;step<4;step++){const issue=validateStep(form,step,data.grade_levels.map(g=>g.id));if(issue){setError((t as any)[issue.code]);document.getElementById('enroll-'+issue.field)?.focus();return;}}
+  const row:Row={...cleanExtendedDetails(form),lrn:form.lrn?.trim()||null};for(const key of ['first_name','last_name','birth_date','sex','address'])row[key]=String(form[key]||'').trim();if(modal.row.id)row.id=modal.row.id;if(modal.title==='Applications')row.note=String(form.note||'');save(row);
+ }
+ return <div className="modal-backdrop"><form className="modal enrollment-details-editor" onSubmit={submit}><div className="toolbar"><h2>{modal.row.id?'Edit':'Add'} {modal.title}</h2><button type="button" aria-label="Close editor" onClick={close}>×</button></div>{error&&<p role="alert" className="alert error">{error}</p>}<div className="form-grid">{['first_name','last_name','birth_date','sex','lrn'].map(key=><label key={key}>{(t as any)[key]}{key==='sex'?<select required value={form[key]||''} onChange={e=>change(key,e.target.value)}><option value="">Select…</option><option>Male</option><option>Female</option></select>:<input required={key!=='lrn'} type={key==='birth_date'?'date':'text'} max={key==='birth_date'?new Date().toISOString().slice(0,10):undefined} pattern={key==='lrn'?'[0-9]{12}':undefined} maxLength={key==='lrn'?12:300} value={form[key]||''} onChange={e=>change(key,e.target.value)}/>}</label>)}</div>{[1,2,3].map(step=><section key={step}><h3>{t.titles[step]}</h3><EnrollmentDetails form={form} step={step} info={info} language="en" onChange={change} help={()=>{}}/></section>)}{modal.title==='Applications'&&<><label>Staff note<textarea value={form.note||''} onChange={e=>change('note',e.target.value)}/></label><div className="profile-grid">{Object.entries(modal.row.extra_answers||{}).map(([question,answer])=><div key={question}><small>{question}</small><p>{String(answer)}</p></div>)}</div><p>Reference: {modal.row.reference} · Submitted: {new Date(modal.row.created_at).toLocaleString()} · Type: {modal.row.enrollment_type} · Grade: {data.grade_levels.find(g=>g.id===modal.row.grade_level_id)?.name}</p></>}<div className="toolbar"><button type="button" onClick={close}>Cancel</button><button className="primary" disabled={busy}>{busy?'Saving…':'Save record'}</button></div></form></div>;
+}

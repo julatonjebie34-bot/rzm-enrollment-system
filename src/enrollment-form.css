@@ -1,4 +1,28 @@
 /* Keep public form controls independent of the management screen's input styles. */
+.full-width { grid-column: 1 / -1; }
+.family-section, .previous-choice { min-width: 0; border: 1px solid #dde5ef; border-radius: 10px; margin: 0 0 18px; padding: 14px; }
+.family-section legend, .previous-choice legend { font-size: 14px; font-weight: 600; padding: 0 5px; }
+.family-policy { font-size: 13px; color: #64748b; }
+.inline-choice { display: flex; flex-direction: row; align-items: flex-start; gap: 10px; line-height: 1.5; }
+.inline-choice input { flex: 0 0 18px; margin: 2px 0 0; }
+.same-address { margin: 12px 0 0; }
+.enrollment-field textarea { width: 100%; min-width: 0; font: inherit; resize: vertical; }
+.verification-section { margin: 18px 0; }
+.verification-error { margin-top: 12px; padding: 12px; background: #fff2ed; border-radius: 8px; font-size: 13px; }
+.verification-error p { margin: 0 0 6px; }
+.verification-error small { display: block; margin-bottom: 10px; }
+.enrollment-details-editor .field-help { display: none; }
+.enrollment-details-editor .enrollment-field { margin-bottom: 16px; }
+.enrollment-details-editor .inline-choice { font-size: 13px; margin-bottom: 12px; }
+.enrollment-details-editor .returning-options label { flex-direction: row; min-height: 44px; margin: 0; }
+.enrollment-details-editor input[type=radio] { width: 18px; min-height: 18px; height: 18px; padding: 0; }
+.enrollment-details-editor textarea { padding: 10px; }
+.public-page.enrollment-form-page .inline-choice { flex-direction: row; align-items: flex-start; font-size: 13px; margin-bottom: 12px; }
+.public-page.enrollment-form-page .same-address { margin-top: 12px; margin-bottom: 0; }
+.public-page.enrollment-form-page .enrollment-field textarea { padding: 10px 12px; font-size: 14px; line-height: 1.5; border-radius: 8px; }
+.public-page.enrollment-form-page .enrollment-field textarea[readonly] { background: #eef3f8; }
+.public-page.enrollment-form-page .extra-questions { margin-top: 18px; }
+@media(max-width:600px) { .public-page.enrollment-form-page .enrollment-field textarea { font-size: 16px; } }
 .public-page.enrollment-form-page {
   padding: 20px 20px 24px;
   background: linear-gradient(180deg, #142f4c 0, #1c3c5b 260px, #eff3f8 260px);

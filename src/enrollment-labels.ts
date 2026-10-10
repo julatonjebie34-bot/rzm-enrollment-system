@@ -1,0 +1,32 @@
+export const enrollmentLabels={
+ en:{
+  address:'Complete Address',contact:'Contact Number',student_email:'Email Address',
+  motherTitle:"Mother’s Information",fatherTitle:"Father’s Information",guardianTitle:"Guardian’s Information",
+  mother_name:"Mother’s Full Name",mother_contact:"Mother’s Contact Number",mother_address:"Mother’s Complete Address",
+  father_name:"Father’s Full Name",father_contact:"Father’s Contact Number",father_address:"Father’s Complete Address",
+  guardian_name:"Guardian’s Full Name",guardian_contact:"Guardian’s Contact Number",guardian_address:"Guardian’s Permanent Address",
+  mother_available:'Mother’s details available',father_available:'Father’s details available',guardian_available:'Guardian’s details available',
+  familyPolicy:'Provide at least one reachable adult. Leave a section unchecked if that person is unavailable or their details are not provided. Addresses are optional.',
+  sameAddress:"Same as Student’s Address",notProvided:'Unavailable / not provided',
+  previously_attended:'Has the student previously attended another school?',previousNo:'No',previous_school:'Previous School Name',previous_school_address:'Previous School Complete Address',last_grade_level_id:'Last Grade Level Completed',
+  noPrevious:'No previous school details are needed. You can continue to the next step.',notApplicable:'Not applicable / not completed',
+  invalidPhone:'Enter a valid Philippine mobile or landline number, for example 0917 123 4567 or (02) 8123 4567.',invalidEmail:'Enter a valid email address, for example example@email.com.',invalidGrade:'Select an available grade level.',invalidBirthDate:'Enter a valid birth date that is not in the future.',adultRequired:'Provide a full name and valid contact number for at least one parent or guardian.',previousAnswerRequired:'Select Yes or No for previous school attendance.',
+  guideGuardian:'Keep each person’s details in their own section. Provide at least one reachable parent or guardian; leave unavailable people unchecked. Family addresses are optional.',guidePrevious:'Select Yes if the learner attended another school, then enter its name and complete address. Select No if this does not apply. Last grade completed is optional.',
+  verificationLoading:'Loading secure verification…',verificationRetry:'Retry verification',verificationNetwork:'Verification could not connect. Check your connection and allow challenges.cloudflare.com, then retry.',verificationDomain:'The school must add this website’s hostname to the Cloudflare Turnstile widget’s allowed hostnames. Contact the school office.',verificationConfiguration:'Verification is not configured correctly. Contact the school office.',verificationExpired:'Verification expired. Please verify again.',verificationFailed:'Verification failed. Please retry or contact the school with the error code.',verificationCode:'Verification code',
+ },
+ fil:{
+  address:'Kumpletong Tirahan',contact:'Numero ng Kontak',student_email:'Email Address',
+  motherTitle:'Impormasyon ng Ina',fatherTitle:'Impormasyon ng Ama',guardianTitle:'Impormasyon ng Tagapag-alaga',
+  mother_name:'Buong Pangalan ng Ina',mother_contact:'Numero ng Kontak ng Ina',mother_address:'Kumpletong Tirahan ng Ina',
+  father_name:'Buong Pangalan ng Ama',father_contact:'Numero ng Kontak ng Ama',father_address:'Kumpletong Tirahan ng Ama',
+  guardian_name:'Buong Pangalan ng Tagapag-alaga',guardian_contact:'Numero ng Kontak ng Tagapag-alaga',guardian_address:'Permanenteng Tirahan ng Tagapag-alaga',
+  mother_available:'May detalye ng ina',father_available:'May detalye ng ama',guardian_available:'May detalye ng tagapag-alaga',
+  familyPolicy:'Magbigay ng kahit isang magulang o tagapag-alagang matatawagan. Huwag lagyan ng tsek kung hindi magagamit ang detalye ng taong iyon. Opsyonal ang kanilang tirahan.',
+  sameAddress:'Pareho sa Tirahan ng Mag-aaral',notProvided:'Hindi magagamit / walang ibinigay',
+  previously_attended:'Nag-aral na ba sa ibang paaralan ang mag-aaral?',previousNo:'Hindi',previous_school:'Pangalan ng Dating Paaralan',previous_school_address:'Kumpletong Address ng Dating Paaralan',last_grade_level_id:'Huling Baitang na Natapos',
+  noPrevious:'Hindi kailangan ang detalye ng dating paaralan. Maaari nang magpatuloy.',notApplicable:'Hindi naaangkop / hindi pa natapos',
+  invalidPhone:'Maglagay ng wastong numero sa Pilipinas, halimbawa 0917 123 4567 o (02) 8123 4567.',invalidEmail:'Maglagay ng wastong email address, halimbawa example@email.com.',invalidGrade:'Pumili ng available na baitang.',invalidBirthDate:'Maglagay ng wastong petsa ng kapanganakan na hindi sa hinaharap.',adultRequired:'Ibigay ang buong pangalan at wastong numero ng kahit isang magulang o tagapag-alaga.',previousAnswerRequired:'Piliin ang Oo o Hindi tungkol sa dating paaralan.',
+  guideGuardian:'Ihiwalay ang detalye ng bawat tao. Magbigay ng kahit isang magulang o tagapag-alagang matatawagan. Huwag lagyan ng tsek ang hindi magagamit na detalye. Opsyonal ang tirahan.',guidePrevious:'Piliin ang Oo kung nag-aral na sa ibang paaralan at ilagay ang pangalan at kumpletong address nito. Kung hindi, piliin ang Hindi. Opsyonal ang huling baitang na natapos.',
+  verificationLoading:'Inihahanda ang ligtas na beripikasyon…',verificationRetry:'Ulitin ang beripikasyon',verificationNetwork:'Hindi makakonekta ang beripikasyon. Suriin ang koneksyon at payagan ang challenges.cloudflare.com, saka subukan muli.',verificationDomain:'Kailangang idagdag ng paaralan ang hostname ng website sa pinapayagang hostnames ng Cloudflare Turnstile. Makipag-ugnayan sa paaralan.',verificationConfiguration:'Hindi tama ang pagkakaayos ng beripikasyon. Makipag-ugnayan sa paaralan.',verificationExpired:'Napaso ang beripikasyon. Ulitin ito.',verificationFailed:'Nabigo ang beripikasyon. Subukan muli o ibigay sa paaralan ang error code.',verificationCode:'Code ng beripikasyon',
+ }
+};
