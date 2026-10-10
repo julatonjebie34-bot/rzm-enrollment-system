@@ -3,12 +3,13 @@ import {Language,translations} from './enrollment-i18n';
 
 let loadingScript:Promise<void>|undefined;
 function loadTurnstile(){
- if((window as any).turnstile)return Promise.resolve();
- return loadingScript??=new Promise<void>((resolve,reject)=>{
+ if(loadingScript)return loadingScript;
+ if(typeof (window as any).turnstile?.render==='function')return Promise.resolve();
+ return loadingScript=new Promise<void>((resolve,reject)=>{
   const script=document.createElement('script');script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';script.async=true;
   const timer=setTimeout(()=>fail(),20000);
   const fail=()=>{clearTimeout(timer);script.remove();loadingScript=undefined;reject(Error('SCRIPT_LOAD'));};
-  script.onerror=fail;script.onload=()=>{clearTimeout(timer);if((window as any).turnstile)resolve();else fail();};document.head.appendChild(script);
+  script.onerror=fail;script.onload=()=>{clearTimeout(timer);if(typeof (window as any).turnstile?.render==='function')resolve();else fail();};document.head.appendChild(script);
  });
 }
 export function TurnstileVerification({siteKey,language,onToken,resetKey}:{siteKey:string;language:Language;onToken:(token:string)=>void;resetKey:number}){
@@ -20,15 +21,13 @@ export function TurnstileVerification({siteKey,language,onToken,resetKey}:{siteK
   void loadTurnstile().then(()=>{
    if(cancelled||!container.current)return;
    const api=(window as any).turnstile;
-   api.ready(()=>{
-    if(cancelled||!container.current)return;
+   // The shared loader has already waited for api.js to load in explicit mode.
     try{widget=api.render(container.current,{sitekey:siteKey,action:'enrollment',language:language==='fil'?'auto':'en',size:window.matchMedia('(max-width:420px)').matches?'compact':'flexible',retry:'auto','retry-interval':8000,
      callback:(token:string)=>{if(!cancelled){callback.current(token);setCode('');setLoading(false);}},
      'error-callback':(errorCode:string)=>{if(!cancelled){callback.current('');setCode(String(errorCode));setLoading(false);console.warn('Enrollment verification error:',String(errorCode));}},
      'expired-callback':()=>{if(!cancelled){callback.current('');setCode('EXPIRED');}},
      'timeout-callback':()=>{if(!cancelled){callback.current('');setCode('TIMEOUT');setLoading(false);}}
     });setLoading(false);}catch{if(!cancelled){setCode('RENDER');setLoading(false);}}
-   });
   }).catch(()=>{if(!cancelled){setCode('SCRIPT_LOAD');setLoading(false);}});
   return()=>{cancelled=true;if(widget!==undefined)(window as any).turnstile?.remove(widget);callback.current('');};
  },[siteKey,language,attempt,resetKey]);
