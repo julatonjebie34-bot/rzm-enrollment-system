@@ -1,0 +1,13 @@
+.allowed-grades-field{grid-column:1/-1;min-width:0;margin:0;padding:16px;border:1px solid var(--line);border-radius:10px}
+.allowed-grades-field legend{padding:0 6px;font-size:13px;font-weight:600;color:var(--ink)}
+.allowed-grades-field legend small{margin-left:6px;font-size:11px;font-weight:400;color:var(--muted)}
+.allowed-grades-field>p{margin:0 0 12px;font-size:12px;line-height:1.6;color:var(--muted)}
+.allowed-grades-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.allowed-grades-actions button{min-height:36px;padding:7px 10px;font-size:12px}
+.allowed-grades-actions span{margin-left:auto;font-size:11px;color:var(--muted)}
+.allowed-grades-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.allowed-grades-field .allowed-grade-option{display:flex;flex-direction:row;align-items:center;gap:10px;min-height:44px;margin:0;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--field);font-size:13px;cursor:pointer}
+.allowed-grades-field .allowed-grade-option:has(input:checked){border-color:var(--green);background:var(--soft)}
+.allowed-grades-field .allowed-grade-option input{width:18px;height:18px;min-height:18px;flex:0 0 18px;margin:0;padding:0;accent-color:var(--green)}
+.allowed-grades-field .allowed-grades-error{margin:12px 0 0;color:var(--green)}
+@media(max-width:480px){.allowed-grades-field{padding:12px}.allowed-grades-options{grid-template-columns:1fr}.allowed-grades-actions span{flex-basis:100%;margin:0}}
