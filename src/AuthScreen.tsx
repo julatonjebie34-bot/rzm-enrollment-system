@@ -7,9 +7,20 @@ export function AuthScreen({initialError=''}:{initialError?:string}) {
   const [showPassword,setShowPassword]=useState(false);
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState(initialError);
+  const [email,setEmail]=useState('');
+  const [recovering,setRecovering]=useState(false);
+  const [notice,setNotice]=useState('');
+  function changeMode(recover:boolean){setRecovering(recover);setError('');setNotice('');setShowPassword(false);}
   async function submit(event:React.FormEvent<HTMLFormElement>){
-    event.preventDefault();setError('');
+    event.preventDefault();setError('');setNotice('');
     if(!db){setError('Please contact the school administrator to configure sign-in.');return;}
+    if(recovering){
+      setBusy(true);
+      try{const {error}=await db.auth.resetPasswordForEmail(email.trim(),{redirectTo:'https://rzm-enrollment-system.vercel.app/?reset-password=1'});if(error)throw error;setNotice('If this email belongs to a staff account, you’ll receive a password reset link. Check your inbox and spam folder.');}
+      catch{setError('We couldn’t send the reset request. Please try again or contact the school administrator.');}
+      finally{setBusy(false);}
+      return;
+    }
     const form=new FormData(event.currentTarget);localStorage.setItem('rzm-trusted-device',form.has('trusted')?'true':'false');localStorage.setItem('rzm-offline-until',form.has('trusted')?String(Date.now()+8*60*60*1000):'0');setBusy(true);
     try {const {error}=await db.auth.signInWithPassword({email:String(form.get('email')||'').trim(),password:String(form.get('password')||'')});if(error)throw error;await db.rpc('record_staff_login');}
     catch(e){setError(e instanceof Error?e.message:'Unable to sign in. Please try again.');}
@@ -20,14 +31,18 @@ export function AuthScreen({initialError=''}:{initialError?:string}) {
     <div className="school-auth-brand"><img src="/brand/school-logo.jpg" alt="Restituta Z. Medina Elementary School seal" width="84" height="84"/><span><strong>Restituta Z. Medina</strong><span>Elementary School</span></span></div>
     <div className="school-auth-heading"><span className="school-auth-overline">ENROLLMENT MANAGEMENT SYSTEM</span><h1>Welcome back</h1><p>Your school community, connected.</p></div>
     <section className="school-auth-card" aria-labelledby="school-auth-title">
-      <div className="school-auth-card-title"><LockKeyhole size={18}/><h2 id="school-auth-title">Faculty & admin login</h2></div>
+      <div className="school-auth-card-title">{recovering?<Mail size={18}/>:<LockKeyhole size={18}/>}<h2 id="school-auth-title">{recovering?'Reset your password':'Faculty & admin login'}</h2></div>
       <form className="school-auth-form" onSubmit={submit}>
+        <p className="school-auth-intro">{recovering?'Enter your staff email and we’ll send you a link to reset your password.':'Sign in to manage your classes and school records.'}</p>
         {error&&<div className="school-auth-feedback is-error" role="alert">{error}</div>}
-        <label htmlFor="auth-email">Email address<div className="school-auth-input"><Mail size={18}/><input id="auth-email" name="email" type="email" autoComplete="username" placeholder="Enter your school email" required disabled={busy}/></div></label>
+        {notice&&<div className="school-auth-feedback is-success" role="status">{notice}</div>}
+        <label htmlFor="auth-email">Email address<div className="school-auth-input"><Mail size={18}/><input id="auth-email" name="email" type="email" autoComplete="username" placeholder="Enter your school email" value={email} onChange={e=>setEmail(e.target.value)} required disabled={busy}/></div></label>
+        {!recovering&&<>
         <label htmlFor="auth-password">Password<div className="school-auth-input"><LockKeyhole size={18}/><input id="auth-password" name="password" type={showPassword?'text':'password'} autoComplete="current-password" placeholder="Enter your password" required disabled={busy}/><button type="button" className="school-auth-reveal" aria-label={showPassword?'Hide password':'Show password'} aria-pressed={showPassword} onClick={()=>setShowPassword(!showPassword)}>{showPassword?<EyeOff size={18}/>:<Eye size={18}/>}</button></div></label>
-        <label style={{display:"flex",flexDirection:"row",alignItems:"center",fontWeight:400}}><input type="checkbox" name="trusted" style={{width:18,height:18}}/> Allow offline access for 8 hours on this private device</label>
-        <button type="submit" className="school-auth-submit" disabled={busy}>{busy?<><LoaderCircle className="school-auth-spin" size={18}/>Signing in…</>:<>Login<ArrowRight size={18}/></>}</button>
-        <button type="button" disabled={busy} onClick={()=>{const email=prompt('Enter your staff email address:');if(email)void db!.auth.resetPasswordForEmail(email.trim(),{redirectTo:'https://rzm-enrollment-system.vercel.app/?reset-password=1'}).then(({error})=>setError(error?'Unable to request reset. Contact the administrator.':'If this address has an account, a password reset email will be sent.'))}}>Forgot password?</button>
+        <label className="school-auth-trusted"><input type="checkbox" name="trusted"/><span>Allow offline access for 8 hours<small>Use only on your private device.</small></span></label>
+        </>}
+        <button type="submit" className="school-auth-submit" disabled={busy}>{busy?<><LoaderCircle className="school-auth-spin" size={18}/>{recovering?'Sending link…':'Signing in…'}</>:<>{recovering?'Send reset link':'Login'}<ArrowRight size={18}/></>}</button>
+        <div className="school-auth-recovery"><button className="school-auth-text-button" type="button" disabled={busy} onClick={()=>changeMode(!recovering)}>{recovering?'Back to login':'Forgot password?'}</button></div>
         <p className="staff-access-note"><ShieldCheck size={15}/> Secure access for authorized school staff</p>
       </form>
     </section>

@@ -44,7 +44,7 @@ Quarter grades use the configured range within 0–100 and decimal precision. Th
 
 ## Files changed and added
 
-Changed: `src/main.tsx`, `src/AuthScreen.tsx`, `src/PublicEnrollment.tsx`, `src/lib.ts`, `src/offline.ts`, `src/SyncStatus.tsx`, both `supabase/functions/*/index.ts`, and `README.md`.
+Changed: `src/main.tsx`, `src/AuthScreen.tsx`, `src/auth.css`, `src/PublicEnrollment.tsx`, `src/lib.ts`, `src/offline.ts`, `src/SyncStatus.tsx`, both `supabase/functions/*/index.ts`, and `README.md`.
 
 Added:
 
@@ -100,7 +100,7 @@ npm ci
 npm test
 npm run build
 git diff --check
-git add src/main.tsx src/AuthScreen.tsx src/PublicEnrollment.tsx src/lib.ts src/offline.ts src/SyncStatus.tsx src/AcademicWorkspace.tsx src/academic-api.ts src/academic.css src/IdentityReview.tsx
+git add src/main.tsx src/AuthScreen.tsx src/auth.css src/PublicEnrollment.tsx src/lib.ts src/offline.ts src/SyncStatus.tsx src/AcademicWorkspace.tsx src/academic-api.ts src/academic.css src/IdentityReview.tsx
 git add supabase/migrations/005_academic_portals.sql supabase/preflight_academic.sql supabase/functions/manage-users/index.ts supabase/functions/public-enrollment/index.ts
 git add tests/academic-portals.test.ts tests/offline-academic.test.ts tests/staff-access.test.ts .env.example README.md ACADEMIC_UPDATE_GUIDE.md
 git diff --cached --stat
