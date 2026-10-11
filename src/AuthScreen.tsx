@@ -10,8 +10,8 @@ export function AuthScreen({initialError=''}:{initialError?:string}) {
   async function submit(event:React.FormEvent<HTMLFormElement>){
     event.preventDefault();setError('');
     if(!db){setError('Please contact the school administrator to configure sign-in.');return;}
-    const form=new FormData(event.currentTarget);setBusy(true);
-    try {const {error}=await db.auth.signInWithPassword({email:String(form.get('email')||'').trim(),password:String(form.get('password')||'')});if(error)throw error;}
+    const form=new FormData(event.currentTarget);localStorage.setItem('rzm-trusted-device',form.has('trusted')?'true':'false');localStorage.setItem('rzm-offline-until',form.has('trusted')?String(Date.now()+8*60*60*1000):'0');setBusy(true);
+    try {const {error}=await db.auth.signInWithPassword({email:String(form.get('email')||'').trim(),password:String(form.get('password')||'')});if(error)throw error;await db.rpc('record_staff_login');}
     catch(e){setError(e instanceof Error?e.message:'Unable to sign in. Please try again.');}
     finally{setBusy(false);}
   }
@@ -25,7 +25,9 @@ export function AuthScreen({initialError=''}:{initialError?:string}) {
         {error&&<div className="school-auth-feedback is-error" role="alert">{error}</div>}
         <label htmlFor="auth-email">Email address<div className="school-auth-input"><Mail size={18}/><input id="auth-email" name="email" type="email" autoComplete="username" placeholder="Enter your school email" required disabled={busy}/></div></label>
         <label htmlFor="auth-password">Password<div className="school-auth-input"><LockKeyhole size={18}/><input id="auth-password" name="password" type={showPassword?'text':'password'} autoComplete="current-password" placeholder="Enter your password" required disabled={busy}/><button type="button" className="school-auth-reveal" aria-label={showPassword?'Hide password':'Show password'} aria-pressed={showPassword} onClick={()=>setShowPassword(!showPassword)}>{showPassword?<EyeOff size={18}/>:<Eye size={18}/>}</button></div></label>
+        <label style={{display:"flex",flexDirection:"row",alignItems:"center",fontWeight:400}}><input type="checkbox" name="trusted" style={{width:18,height:18}}/> Allow offline access for 8 hours on this private device</label>
         <button type="submit" className="school-auth-submit" disabled={busy}>{busy?<><LoaderCircle className="school-auth-spin" size={18}/>Signing in…</>:<>Login<ArrowRight size={18}/></>}</button>
+        <button type="button" disabled={busy} onClick={()=>{const email=prompt('Enter your staff email address:');if(email)void db!.auth.resetPasswordForEmail(email.trim(),{redirectTo:'https://rzm-enrollment-system.vercel.app/?reset-password=1'}).then(({error})=>setError(error?'Unable to request reset. Contact the administrator.':'If this address has an account, a password reset email will be sent.'))}}>Forgot password?</button>
         <p className="staff-access-note"><ShieldCheck size={15}/> Secure access for authorized school staff</p>
       </form>
     </section>

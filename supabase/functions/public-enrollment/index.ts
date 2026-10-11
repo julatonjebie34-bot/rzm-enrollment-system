@@ -11,11 +11,12 @@ Deno.serve(async(req)=>{
  try{
   const url=new URL(req.url);const token=url.searchParams.get('token');if(!token||!/^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.test(token))throw new PublicError('LINK_UNAVAILABLE');
   const {data:link,error}=await client.from('enrollment_links').select('*').eq('token',token).single();if(error&&error.code!=='PGRST116')throw new PublicError('SERVICE_UNAVAILABLE');if(!link||!link.published||link.archived||Date.now()<Date.parse(link.opens_at)||Date.now()>Date.parse(link.closes_at))throw new PublicError('LINK_UNAVAILABLE');
+  const {data:enrollmentYear,error:yearError}=await client.from('school_years').select('archived').eq('id',link.school_year_id).single();if(yearError)throw new PublicError('SERVICE_UNAVAILABLE');if(enrollmentYear.archived)throw new PublicError('LINK_UNAVAILABLE');
   const allGrades=await client.from('grade_levels').select('id,name').order('rank');if(allGrades.error)throw new PublicError('SERVICE_UNAVAILABLE');
   link.valid_grade_ids=allGrades.data.map((g:{id:string})=>g.id);
   if(req.method==='GET'){
-   const [grades,year,school]=await Promise.all([Promise.resolve({data:allGrades.data.filter((g:{id:string})=>link.allowed_grade_ids.includes(g.id)),error:null}),client.from('school_years').select('name').eq('id',link.school_year_id).single(),client.from('school_settings').select('school_name').eq('id',1).single()]);if(grades.error||year.error||school.error)throw new PublicError('SERVICE_UNAVAILABLE');
-   return response({title:link.title,instructions:link.instructions,extra_questions:link.extra_questions,grades:grades.data,allGrades:allGrades.data,year:year.data?.name,school:school.data?.school_name,turnstileSiteKey:Deno.env.get('TURNSTILE_SITE_KEY')});
+   const [grades,year,school]=await Promise.all([Promise.resolve({data:allGrades.data.filter((g:{id:string})=>link.allowed_grade_ids.includes(g.id)),error:null}),client.from('school_years').select('name').eq('id',link.school_year_id).single(),client.from('school_settings').select('school_name,logo_url,support_contact').eq('id',1).single()]);if(grades.error||year.error||school.error)throw new PublicError('SERVICE_UNAVAILABLE');
+   return response({title:link.title,instructions:link.instructions,extra_questions:link.extra_questions,grades:grades.data,allGrades:allGrades.data,year:year.data?.name,school:school.data?.school_name,logoUrl:school.data?.logo_url,supportContact:school.data?.support_contact,turnstileSiteKey:Deno.env.get('TURNSTILE_SITE_KEY')});
   }
   // Hash a gateway address rather than storing raw IPs; also enforce a per-link global cap.
   const ip=(req.headers.get('x-forwarded-for')||'unknown').split(',').at(-1)!.trim();const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ip+'|'+Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')));const hash=[...new Uint8Array(bytes)].map(v=>v.toString(16).padStart(2,'0')).join('');
