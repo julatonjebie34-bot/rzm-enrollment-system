@@ -17,8 +17,8 @@ export async function gradeAction(action:string,submission:Row,entries:Row,remar
  if(data?.status==='conflict'){await refreshAcademic();throw Error('These grades changed on another device. Refresh and review the latest version before trying again.');}
  await refreshAcademic();return data.record;
 }
-export async function staffAction(body:Row){
+export async function staffAction(body:Row,refresh=true){
  requireOnline();if(location.hostname.endsWith('.vercel.app')&&location.hostname!=='rzm-enrollment-system.vercel.app')throw Error('Open https://rzm-enrollment-system.vercel.app to manage staff accounts. This preview address is not authorized.');const {data,error}=await db!.functions.invoke('manage-users',{body});
  if(error){const response=(error as any).context;if(response instanceof Response){const detail=await response.json().catch(()=>null);if(detail?.error)throw Error(detail.error);}throw Error(error.message);}
- if(data?.error)throw Error(data.error);await refreshAcademic();return data;
+ if(data?.error)throw Error(data.error);if(refresh)await refreshAcademic();return data;
 }
