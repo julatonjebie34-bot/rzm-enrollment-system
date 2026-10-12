@@ -15,6 +15,7 @@ export async function snapshot(){const rows=await all<LocalRecord>('records');re
 export async function updateStatus(){if(!owner)return;const q=(await all<Operation>('queue')).filter(o=>o.owner===owner&&['pending_sync','conflict'].includes(o.sync_status));status={...status,online:navigator.onLine,pending:q.length,offline:new Set(q.map(o=>o.table+o.record_id)).size,errors:q.filter(o=>o.last_sync_error).length,conflicts:q.filter(o=>o.sync_status==='conflict'),lastSync:(await get('meta',owner+':lastSync'))?.value||status.lastSync};emit()}
 export async function save(table:string,input:Row,kind='write'){
  if(!owner)throw Error('Sign in before saving records.');
+ if(table==='enrollments')throw Error('Section assignments and transfers require online server confirmation.');
  if(table==='grades')throw Error('Use Grade Encoding to save drafts and submit grades for approval.');
  const account=owner;const now=new Date().toISOString();const id=input.id??(table==='school_settings'?1:uuid());
  await transaction(['records','queue','meta'],'readwrite',async t=>{
