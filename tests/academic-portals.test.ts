@@ -15,6 +15,7 @@ test('Full academic workflow: preserved records, RLS, revisions, conflicts, fina
  const y=await one("insert into school_years(name,active) values('2026–2027',true) returning *");
  await db.exec(readFileSync('supabase/migrations/005_academic_portals.sql','utf8'));
  await db.exec(readFileSync('supabase/migrations/006_section_assignment.sql','utf8'));
+ await db.exec(readFileSync('supabase/migrations/007_smart_advisers.sql','utf8'));
  assert.equal((await one('select passing_mark from school_years')).passing_mark,'76');
  assert.equal((await db.query('select * from grading_periods')).rows.length,4);
  const g=await one('select id from grade_levels where rank=1');

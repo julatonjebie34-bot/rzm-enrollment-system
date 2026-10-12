@@ -107,5 +107,5 @@ test('Placement client requires online server validation and blocks pending offl
  vm.runInContext(ts.transpileModule(readFileSync('src/section-assignment-api.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,ctx);
  await assert.rejects(()=>exports.placementPreview('a',null),/Reconnect/);await assert.rejects(()=>exports.confirmPlacement({}),/Reconnect/);assert.equal(calls.length,0);
  online=true;pending=1;await assert.rejects(()=>exports.confirmPlacement({}),/Synchronize/);assert.equal(calls.length,0);
- pending=0;await exports.confirmPlacement({operation:'stable-id'});assert.equal(calls[0].name,'confirm_section_placement');assert.equal(calls[0].args.operation,'stable-id');
+ pending=0;await exports.confirmPlacement({operation:'stable-id'});assert.equal(calls[0].name,'smart_confirm_placement');assert.equal(calls[0].args.operation,'stable-id');
 });
