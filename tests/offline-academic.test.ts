@@ -36,3 +36,13 @@ test('quota errors leave no partial queued grade and submitted grades cannot be 
  await assert.rejects(()=>h.api.saveGradeDraft(assignment,period,{student:80},{id:'submitted',status:'Submitted'}),/locked/);
  await assert.rejects(()=>h.api.save('grades',{id:'official',q1:99}),/Grade Encoding/);
 });
+
+test('autosave rejects stale local versions and duplicate new drafts without queuing changes',async()=>{
+ const h=harness();await h.api.activate('teacher-a');
+ const first=await h.api.saveGradeDraft(assignment,period,{student:80});
+ const next=await h.api.saveGradeDraft(assignment,period,{student:81},first);
+ assert.equal(next.sync_version,2);assert.equal(h.stores.queue.size,2);
+ await assert.rejects(()=>h.api.saveGradeDraft(assignment,period,{student:99},first),/changed while/);
+ await assert.rejects(()=>h.api.saveGradeDraft(assignment,period,{student:98}),/already exists/);
+ assert.equal(h.stores.queue.size,2);assert.equal((await h.api.snapshot()).grade_submissions[0].entries.student,81);
+});

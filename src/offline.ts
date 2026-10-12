@@ -13,13 +13,14 @@ export async function activate(id:string){owner=id;status={...status,message:'',
 export function deactivate(){transientOwner='';transient={};owner='';status={...status,pending:0,offline:0,errors:0,message:'',cloudError:'',lastSync:'',conflicts:[]};emit()}
 export async function snapshot(){const rows=await all<LocalRecord>('records');return Object.fromEntries(tables.map(t=>[t,onlineOnly.has(t)?(navigator.onLine&&transientOwner===owner?transient[t]||[]:[]):rows.filter(r=>r.owner===owner&&r.table===t).map(r=>r.data)])) as Record<string,Row[]>}
 export async function updateStatus(){if(!owner)return;const q=(await all<Operation>('queue')).filter(o=>o.owner===owner&&['pending_sync','conflict'].includes(o.sync_status));status={...status,online:navigator.onLine,pending:q.length,offline:new Set(q.map(o=>o.table+o.record_id)).size,errors:q.filter(o=>o.last_sync_error).length,conflicts:q.filter(o=>o.sync_status==='conflict'),lastSync:(await get('meta',owner+':lastSync'))?.value||status.lastSync};emit()}
-export async function save(table:string,input:Row,kind='write'){
+export async function save(table:string,input:Row,kind='write',expectedDraftVersion?:number|null){
  if(!owner)throw Error('Sign in before saving records.');
  if(table==='enrollments')throw Error('Section assignments and transfers require online server confirmation.');
  if(table==='grades')throw Error('Use Grade Encoding to save drafts and submit grades for approval.');
  const account=owner;const now=new Date().toISOString();const id=input.id??(table==='school_settings'?1:uuid());
  await transaction(['records','queue','meta'],'readwrite',async t=>{
   const store=t.objectStore('records');const key=`${account}:${table}:${id}`;const current=await request<LocalRecord|undefined>(store.get(key));
+  if(kind==='grade_draft'){if(expectedDraftVersion!==undefined&&(current?Number(current.data.sync_version):null)!==expectedDraftVersion)throw Error('This draft changed while you were editing. Keep a copy of your edits, refresh, and review the latest draft before retrying.');if(!current){const records=await request<LocalRecord[]>(store.getAll());if(records.some(r=>r.owner===account&&r.table===table&&r.data.section_id===input.section_id&&r.data.subject_id===input.subject_id&&r.data.period_id===input.period_id))throw Error('A draft for this class and quarter already exists. Refresh before editing.');}}
   const queued=await request<Operation[]>(t.objectStore('queue').getAll());if(queued.some(o=>o.owner===account&&o.table===table&&o.record_id===String(id)&&!['write','grade_draft'].includes(o.kind)&&['pending_sync','conflict'].includes(o.sync_status)))throw Error('An approval or promotion is pending for this record. Sync it before editing.');
   if(current?.sync_status==='conflict'||queued.some(o=>o.owner===account&&o.table===table&&o.record_id===String(id)&&o.sync_status==='conflict'))throw Error('Resolve this record’s sync conflict before editing it.');
   let payload:Row={...input,id};if(!current&&table==='enrollment_links'){payload.token=uuid();payload.archived=false;payload.instructions='';payload.extra_questions=[];}
@@ -47,7 +48,11 @@ export async function command(kind:'approve'|'promote',payload:Row){
 }
 export async function saveGradeDraft(assignment:Row,period:Row,entries:Row,current?:Row){
  if(current&&!['Draft','Returned'].includes(current.status))throw Error('Submitted grades are locked.');
- await save('grade_submissions',{id:current?.id??uuid(),assignment_id:assignment.id,section_id:assignment.section_id,subject_id:assignment.subject_id,teacher_id:assignment.teacher_id,period_id:period.id,entries,status:current?.status||'Draft',roster:current?.roster||[],remarks:current?.remarks||''},'grade_draft');
+ const account=owner,id=current?.id??uuid();
+ await save('grade_submissions',{id,assignment_id:assignment.id,section_id:assignment.section_id,subject_id:assignment.subject_id,teacher_id:assignment.teacher_id,period_id:period.id,entries,status:current?.status||'Draft',roster:current?.roster||[],remarks:current?.remarks||''},'grade_draft',current?.sync_version??null);
+ const saved=await get<LocalRecord>('records',account+':grade_submissions:'+id);
+ if(owner!==account||!saved)throw Error('Account access changed while saving. Sign in again to verify your saved draft.');
+ return saved.data;
 }
 /** Read cloud snapshots into IndexedDB; never overwrite a pending local record. */
 export async function pull(){if(!db||!owner||!navigator.onLine)return;const account=owner;const access=await db.from('profiles').select('*').eq('id',account).single();if(access.error)throw Error(access.error.message);const permitted=access.data.active&&!access.data.must_change_password;const teacher=access.data.role==='teacher';const next:Record<string,Row[]>={};for(const table of tables){const rows:Row[]=[];if(!permitted){next[table]=table==='profiles'?[access.data]:[];continue;}if(teacher&&table==='profiles'){const r=await db.rpc('teacher_directory');if(r.error)throw Error(r.error.message);next[table]=r.data.map((p:Row)=>p.id===account?access.data:p);continue;}if(teacher&&table==='students'){for(let offset=0;;offset+=1000){const r=await db.rpc('teacher_students').order('id').range(offset,offset+999);if(r.error)throw Error(r.error.message);rows.push(...r.data);if(r.data.length<1000)break;}next[table]=rows;continue;}for(let start=0;;start+=1000){const r=await db.from(table).select('*').order('id').range(start,start+999);if(r.error)throw Error(r.error.message);rows.push(...r.data);if(r.data.length<1000)break;}next[table]=rows;}
