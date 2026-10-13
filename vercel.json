@@ -4,6 +4,10 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/google47c1dbd776e5fc12.html",
+      "destination": "/google47c1dbd776e5fc12.html"
+    },
+    {
       "source": "/robots.txt",
       "destination": "/robots.txt"
     },
