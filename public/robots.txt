@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# Enrollment/recovery URLs receive noindex headers. Crawling is allowed so bots can read them.
+Sitemap: https://rzm-enrollment-system.vercel.app/sitemap.xml

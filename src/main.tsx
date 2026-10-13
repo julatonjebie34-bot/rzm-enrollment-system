@@ -1,3 +1,4 @@
+import {updateIndexing} from './seo';
 import {LearnerIdentifier} from './LearnerIdentifier';
 import {BulkPlacement,SectionAlerts} from './SmartPlacement';
 import {AssignmentDialog,StudentTransfer} from './SectionAssignment';
@@ -52,6 +53,7 @@ function App(){
  useEffect(()=>{const check=()=>setOfflineBlocked(!navigator.onLine&&Number(localStorage.getItem('rzm-offline-until')||0)<=Date.now());check();window.addEventListener('online',check);window.addEventListener('offline',check);const timer=setInterval(check,30000);return()=>{clearInterval(timer);window.removeEventListener('online',check);window.removeEventListener('offline',check)}},[]);
  const [placement,setPlacement]=useState<Row|null>(null);
  const [session,setSession]=useState<any>(null),[ready,setReady]=useState(false),[data,setData]=useState(emptyData),[page,setPage]=useState('Dashboard'),[sub,setSub]=useState('Academic Records'),[search,setSearch]=useState(''),[error,setError]=useState(''),[notice,setNotice]=useState(''),[modal,setModal]=useState<{title:string,row:Row}|null>(null),[busy,setBusy]=useState(false),[detail,setDetail]=useState<Row|null>(null),[mobile,setMobile]=useState(false),[dark,setDark]=useState(localStorage.getItem('theme')==='dark');
+ useEffect(()=>{updateIndexing(!!session||passwordRecovery)},[session,passwordRecovery]);
  const [expandedSidebar,setExpandedSidebar]=useState<string|null>(null);
  useEffect(()=>{setExpandedSidebar(sidebarGroups.find(group=>group.items.some(([target])=>target===page))?.name??null)},[page]);
  const token=new URLSearchParams(location.search).get('enroll');

@@ -1,3 +1,4 @@
+import {updateIndexing} from './seo';
 import { useEffect,useState } from 'react';
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, ShieldCheck, LoaderCircle } from 'lucide-react';
 import { db } from './lib';
@@ -13,6 +14,7 @@ export function AuthScreen({initialError=''}:{initialError?:string}) {
   const [notice,setNotice]=useState('');
   const [codeSent,setCodeSent]=useState(false),[code,setCode]=useState(''),[cooldown,setCooldown]=useState(0);
   useEffect(()=>{if(!cooldown)return;const timer=setTimeout(()=>setCooldown(v=>Math.max(0,v-1)),1000);return()=>clearTimeout(timer)},[cooldown]);
+  useEffect(()=>{updateIndexing(recovering)},[recovering]);
   function changeMode(recover:boolean){setRecovering(recover);setCodeSent(false);setCode('');setError('');setNotice('');setShowPassword(false);}
   async function sendCode(){
     setBusy(true);setError('');setNotice('');
@@ -56,6 +58,7 @@ export function AuthScreen({initialError=''}:{initialError?:string}) {
       </form>
     </section>
     <p className="school-auth-parent-note">Enrolling a learner?<span>Use the enrollment link provided by the school.</span></p>
+    <section className="school-public-info" aria-label="About the school enrollment system"><h2>Restituta Z. Medina Elementary School</h2><p>Web-Based Enrollment System</p><p>Online Enrollment is available through school-provided links. Student Information Management and Academic Records Management are available only to authorized school staff.</p></section>
     <div className="school-auth-footer"><ShieldCheck size={14}/><span>Restituta Z. Medina Elementary School · Student records</span></div>
   </div>;
 }

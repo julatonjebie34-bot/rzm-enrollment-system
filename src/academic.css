@@ -10,3 +10,10 @@
 .academic-workspace .quarter-draft-box input[type=number]{width:100%;min-width:0;text-align:center;border:0;box-shadow:none;background:transparent}
 .academic-workspace .quarter-draft-box input:focus-visible{outline:2px solid var(--muted);outline-offset:1px}
 .learner-id-label{display:block;font-size:11px;color:var(--muted);max-width:220px}
+
+.academic-workspace .quarter-value.grade-fail,.academic-workspace .quarter-value.grade-fail input{color:#b42318;font-weight:700}
+.academic-workspace .quarter-value.grade-pass,.academic-workspace .quarter-value.grade-pass input{color:#146c43;font-weight:700}
+.academic-workspace .quarter-value.grade-fail::after{content:'Below 75';display:block;font-size:10px}
+.academic-workspace .quarter-value.grade-pass::after{content:'75–100';display:block;font-size:10px}
+[data-theme=dark] .academic-workspace .quarter-value.grade-fail,[data-theme=dark] .academic-workspace .quarter-value.grade-fail input{color:#ffaaa2}
+[data-theme=dark] .academic-workspace .quarter-value.grade-pass,[data-theme=dark] .academic-workspace .quarter-value.grade-pass input{color:#81e6ad}

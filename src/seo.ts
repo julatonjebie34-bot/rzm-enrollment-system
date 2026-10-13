@@ -1,0 +1,2 @@
+export function publicHomepage(url:URL,signedIn=false){return !signedIn&&url.origin==='https://rzm-enrollment-system.vercel.app'&&url.pathname==='/'&&!url.search&&!url.hash;}
+export function updateIndexing(signedIn=false){const meta=document.querySelector<HTMLMetaElement>('meta[name="robots"]');if(meta)meta.content=publicHomepage(new URL(location.href),signedIn)?'index, follow':'noindex, nofollow';}

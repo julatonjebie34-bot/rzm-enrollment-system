@@ -24,3 +24,6 @@ export function validSelection(data:Record<string,Row[]>,teacher:string,saved:Te
  const section=data.sections.find(s=>s.id===saved.section&&s.active&&s.school_year_id===year&&own.some(a=>a.section_id===s.id))?.id||'';
  return {year,section,assignment:own.find(a=>a.id===saved.assignment&&a.section_id===section)?.id||'',period:data.grading_periods.find(p=>p.id===saved.period&&p.school_year_id===year)?.id||''};
 }
+
+/** Display threshold requested by the school; does not change official grading policy. */
+export function quarterResult(value:unknown){return typeof value!=='number'||!Number.isFinite(value)||value<0||value>100?'':value<75?'fail':'pass';}
